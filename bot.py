@@ -2,14 +2,10 @@ import os
 import discord
 from discord import app_commands
 from discord.ext import commands
-from dotenv import load_dotenv
 from flask import Flask
 import threading
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Get the bot token from .env
+# Load bot token directly from Railway environment variable
 TOKEN = os.getenv("BOT_TOKEN")
 
 # Define conversion rate (1000 Robux = $3.5 USD)
@@ -54,30 +50,25 @@ CURRENCY_SYMBOLS = {
     "R$": "R$"  # Robux symbol
 }
 
-# Keep-alive web server to prevent Replit from shutting down the bot
+# Keep-alive web server to prevent Railway from stopping the bot
 app = Flask(__name__)
-
 
 @app.route("/")
 def home():
     return "Bot is running!", 200  # Ensure HTTP 200 Response
 
-
 def run():
     """Runs the keep-alive web server."""
     app.run(host="0.0.0.0", port=8080, debug=False)
-
 
 def keep_alive():
     """Starts the keep-alive server in a separate thread."""
     server = threading.Thread(target=run, daemon=True)
     server.start()
 
-
 # Initialize bot with intents
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
-
 
 @bot.event
 async def on_ready():
@@ -91,11 +82,9 @@ async def on_ready():
     except Exception as e:
         print(f"Error syncing commands: {e}")
 
-
 def format_number(value):
     """Format number with commas (e.g., 1000000 -> 1,000,000)."""
     return f"{value:,.2f}" if isinstance(value, float) else f"{value:,}"
-
 
 def convert_usd_to_currency(usd_amount, currency_code):
     """Convert USD to the specified currency."""
@@ -104,14 +93,12 @@ def convert_usd_to_currency(usd_amount, currency_code):
         return usd_amount * rate
     return None
 
-
 def convert_currency_to_usd(amount, currency_code):
     """Convert the specified currency to USD."""
     rate = CURRENCY_EXCHANGE_RATES.get(currency_code.upper())
     if rate:
         return amount / rate
     return None
-
 
 # /robux2money command
 @bot.tree.command(name="robux2money",
@@ -147,7 +134,6 @@ async def robux2money(interaction: discord.Interaction,
             f"⚠️ Conversion for `{currency}` is not available. Please try again later."
         )
 
-
 # /money2robux command
 @bot.tree.command(name="money2robux",
                   description="Convert real-world currency to Robux.")
@@ -181,16 +167,17 @@ async def money2robux(interaction: discord.Interaction,
             f"⚠️ Conversion for `{currency}` is not available. Please try again later."
         )
 
-
 # Ping command for basic testing
 @bot.command()
 async def ping(ctx):
     """Simple ping command to check bot responsiveness."""
     await ctx.send("🏓 Pong!")
 
-
 # Keep the bot alive using the Flask web server
 keep_alive()
 
-# Run the bot using the token from .env
-bot.run(TOKEN)
+# Run the bot using the token from Railway Environment Variables
+if TOKEN:
+    bot.run(TOKEN)
+else:
+    print("❌ BOT_TOKEN not found. Make sure to add it to Railway Variables.")
