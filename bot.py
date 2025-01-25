@@ -180,4 +180,4 @@ keep_alive()
 if TOKEN:
     bot.run(TOKEN)
 else:
-    print("❌ BOT_TOKEN not found. Make sure to add it to Railway Variables.")
+    print("BOT_TOKEN not found. Make sure to add it to Railway Variables.")
