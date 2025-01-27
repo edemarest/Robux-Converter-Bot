@@ -69,6 +69,15 @@ def keep_alive():
 # Initialize bot with intents
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return  # Prevent bot from replying to itself
+
+    if isinstance(message.channel, discord.GroupChannel):  # ✅ Allow Group Chats
+        await message.channel.send(f"Hello group! I'm {bot.user.name}. How can I assist?")
+
+    await bot.process_commands(message)  # Ensure commands still work in servers
 
 @bot.event
 async def on_ready():
