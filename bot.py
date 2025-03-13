@@ -176,12 +176,6 @@ async def money2robux(interaction: discord.Interaction,
             f"⚠️ Conversion for `{currency}` is not available. Please try again later."
         )
 
-# Ping command for basic testing
-@bot.command()
-async def ping(ctx):
-    """Simple ping command to check bot responsiveness."""
-    await ctx.send("🏓 Pong!")
-
 # Keep the bot alive using the Flask web server
 keep_alive()
 
